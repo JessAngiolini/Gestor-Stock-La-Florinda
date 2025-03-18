@@ -3,12 +3,14 @@ import db from "../database/db.js";
 
 // Obtener todos los productos
 export const getProducts = (req, res) => {
-  db.all("SELECT * FROM products", [], (err, rows) => {
+ 
+   db.all("SELECT * FROM products", [], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
+    console.log(rows);
     res.json(rows);
-  });
+  }); 
 };
 
 // Obtener un producto por ID
