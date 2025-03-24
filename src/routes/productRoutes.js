@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import { getProducts, getProductById, addProduct, updateProduct, deleteProduct } from "../controllers/productController.js";
+import { getProducts, getProductById, addProduct, deleteProduct, searchProduct, updateProduct, updatePrices, createSale } from "../controllers/productController.js";
+import { purchaseWholesale } from "../controllers/purchaseController.js";
+
 
 const router = Router();
 
@@ -15,11 +17,12 @@ const validateProduct = [
 
 router.get("/products", getProducts);
 router.get("/products/:id", getProductById);
-router.post("/products", validateProduct, addProduct);
-router.put("/products/:id", validateProduct, updateProduct);
+router.post("/products", addProduct);
+router.put("/products/update-prices", updatePrices);
+router.get("/products/search/:query", searchProduct);
+router.put("/products/update-stock", createSale);
+router.post("/purchase/wholesale", purchaseWholesale);
 router.delete("/products/:id", deleteProduct);
-
-
-
-
+router.put("/products/:id", updateProduct);
+ 
 export default router;
