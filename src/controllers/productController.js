@@ -82,7 +82,7 @@ export const updateProduct = (req, res) => {
 };
 
 
-// Eliminar un producto
+
 // Eliminar un producto
 export const deleteProduct = (req, res) => {
   const { id } = req.params;
@@ -172,17 +172,63 @@ export const updatePrices = async (req, res) => {
 
 
 //Venta compra
-export const updateProductStock = async (req, res) => {
-  const { id, newQuantity } = req.body;
+// Venta compra
+export const createSale = async (req, res) => {
+  const { items, total } = req.body; // Recibe los productos vendidos y el total de la venta
 
-  if (!id || newQuantity === undefined) { //validacion de ID
-    return res.status(400).json({ error: "ID y nueva cantidad son obligatorios." });
+  if (!items || items.length === 0) {
+    return res.status(400).json({ error: "Debe haber al menos un producto en la venta." });
   }
-
-  db.run("UPDATE products SET quantity = ? WHERE id = ?", [newQuantity, id], function (err) {
-    if (err) {
-      return res.status(500).json({ error: "Error al actualizar el stock." });
-    }
-    res.json({ success: true, message: "Stock actualizado correctamente." });
-  });
-};
+  
+  try {
+    // Iniciar transacción
+    db.run("BEGIN TRANSACTION");
+  
+    // 1️⃣ Insertar la venta en la tabla sales
+    db.run("INSERT INTO sales (total_price) VALUES (?)", [total], function (err) {
+      if (err) {
+        db.run("ROLLBACK");
+        return res.status(500).json({ error: "Error al registrar la venta." });
+      }
+  
+      const saleId = this.lastID; // Obtiene el ID de la venta recién creada
+  
+      // 2️⃣ Insertar los productos vendidos en sales_items y actualizar stock
+      const stmt = db.prepare("INSERT INTO sales_items (sale_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
+  
+      const updateStockPromises = items.map(({ product_id, quantity, price }) => {
+        return new Promise((resolve, reject) => {
+          // Insertar cada producto vendido en sales_items
+          stmt.run([saleId, product_id, quantity, price], function (err) {
+            if (err) {
+              reject("Error al registrar los productos vendidos.");
+            }
+  
+            // 3️⃣ Actualizar el stock de los productos
+            db.run("UPDATE products SET quantity = quantity - ? WHERE id = ?", [quantity, product_id], function (err) {
+              if (err) {
+                reject("Error al actualizar el stock.");
+              }
+              resolve(); // Resolvemos cuando la actualización del stock se complete
+            });
+          });
+        });
+      });
+  
+      // Esperar que todas las promesas se resuelvan antes de confirmar la transacción
+      Promise.all(updateStockPromises)
+        .then(() => {
+          stmt.finalize();
+          db.run("COMMIT"); // Confirmar la transacción
+          res.json({ success: true, message: "Venta registrada y stock actualizado correctamente.", saleId });
+        })
+        .catch((error) => {
+          db.run("ROLLBACK");
+          res.status(500).json({ error: error });
+        });
+    });
+  } catch (error) {
+    db.run("ROLLBACK");
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
+};  
