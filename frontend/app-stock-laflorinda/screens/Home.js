@@ -2,7 +2,9 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { useFonts } from 'expo-font';
+import { useFonts } from "expo-font";
+import { LinearGradient } from "expo-linear-gradient";
+import { StatusBar } from "expo-status-bar";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -21,26 +23,30 @@ const HomeScreen = () => {
   }
 
   const menuItems = [
-    { title: "Inventario", icon: "clipboard-list", screen: "GetProducts", color: "#332D59" },
-    { title: "Agregar Producto", icon: "plus-box", screen: "AddProduct", color: "#332D59" },
-    { title: "Actualizar Precios", icon: "currency-usd", screen: "updateProduct", color: "#332D59" },
-    { title: "Venta", icon: "cart", screen: "Transaction", color: "#332D59" },
-    { title: "Compra", icon: "basket", screen: "PurchaseScreen", color: "#332D59" },
-    { title: "Detalles Venta", icon: "playlist-edit", screen: "SalesDetail", color: "#332D59" },
+    { title: "Inventario", icon: "clipboard-list", screen: "GetProducts", colors: ["#8E2DE2", "#4A00E0"] },
+    { title: "Agregar Producto", icon: "plus-box", screen: "AddProduct", colors: ["#FF512F", "#DD2476"] },
+    { title: "Actualizar Precios", icon: "currency-usd", screen: "updateProduct", colors: [ "#93F9B9", "#1D976C"] },
+    { title: "Venta", icon: "cart", screen: "Transaction", colors: ["#FF0099", "#DD02F7"] },
+    { title: "Compra", icon: "truck-fast", screen: "PurchaseScreen", colors: ["#36D1DC", "#024CF7"] },
+    { title: "Detalles Venta", icon: "file-chart", screen: "SalesDetail", colors: [ "#F09819", "#FF512F"] },
+    { title: "Alertas", icon: "bell-alert", screen: "SalesDetail", colors: [ "#FF6A00", "#EE0979"] },
+    { title: "Detalles Compra", icon: "file-document", screen: "SalesDetail", colors: [ "#2E3192", "#1BFFFF"] },
+    
   ];
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={[styles.button, { backgroundColor: item.color }]} 
-      onPress={() => navigation.navigate(item.screen)}
-    >
-      <Icon name={item.icon} size={55} color="#0AA689" />
-      <Text style={styles.buttonText}>{item.title}</Text>
+    <TouchableOpacity onPress={() => navigation.navigate(item.screen)} style={styles.buttonContainer}>
+      <LinearGradient colors={item.colors} style={styles.button}>
+        <Icon name={item.icon} size={55} color="#FFFFFF" />
+        <Text style={styles.buttonText}>{item.title}</Text>
+      </LinearGradient>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <>
+    <StatusBar style="light" />
+    <LinearGradient colors={["#111026", "#332D59"]} style={styles.container}>
       <Text style={styles.title}>Gestión de Stock</Text>
       <FlatList
         data={menuItems}
@@ -48,8 +54,10 @@ const HomeScreen = () => {
         keyExtractor={(item, index) => index.toString()}
         numColumns={2}
         columnWrapperStyle={styles.row}
+        contentContainerStyle={{ paddingBottom: 50 }} 
       />
-    </View>
+    </LinearGradient>
+    </>
   );
 };
 
@@ -57,8 +65,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#111026",
+    justifyContent: "space-around",
+    paddingTop: 50, 
   },
   loadingContainer: {
     flex: 1,
@@ -69,33 +77,36 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    marginTop: 40,
+    marginTop: 80,
     marginBottom: 20,
-    color: "#0AA689",
+    color: "#fff",
     fontFamily: "Roboto-Condensed",
   },
   row: {
     justifyContent: "space-between",
     gap: 2,
   },
-  button: {
+  buttonContainer: {
     width: "45%",
     aspectRatio: 1,
-    alignItems: "center",
-    justifyContent: "center",
     margin: 10,
     borderRadius: 10,
-    shadowColor: "#5e52a8",
-    shadowOffset: {
-      width: 4,
-      height: 4
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-    elevation: 5, 
+    overflow: "hidden", // Para que el degradado respete las esquinas redondeadas
+  },
+  button: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   buttonText: {
-    color: "#D0D2D9",
+    color: "#FFF",
     fontWeight: "bold",
     fontSize: 16,
     marginTop: 5,
@@ -105,7 +116,6 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-
 
 
  
