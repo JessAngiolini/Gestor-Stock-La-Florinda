@@ -4,10 +4,10 @@ import { Button, Dialog, Portal, Provider, TextInput as PaperInput, ActivityIndi
 import { getProducts, searchProduct, updateProduct, deleteProduct } from "../api/api.js";
 import {useFonts} from "expo-font";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { LinearGradient } from "expo-linear-gradient";
 
 
-
-function GetProductsScreen() {
+function GetProductsScreen({ navigation }) {
 
   const [fontLoaded] = useFonts ({
     "Roboto-Condensed": require("../assets/fonts/RobotoCondensed-Regular.ttf"),
@@ -107,25 +107,23 @@ function GetProductsScreen() {
 
   return (
     <Provider>
-      <View style={styles.container}>
-        <Text style={styles.title}>Inventario</Text>
-
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar productos"
-          placeholderTextColor="#D0D2D9"
-          value={searchQuery}
-          onChangeText={handleSearch}
-        />
-
-        {/*Lista de productos */}
-        {/* <View style={styles.tableHeader}>
-          <Text style={[styles.headerText, { flex: 2 }]}>Nombre</Text>
-          <Text style={[styles.headerText, { flex: 1 }]}>Cant.</Text>
-          <Text style={[styles.headerText, { flex: 1 }]}>Precio</Text>
-          <Text style={[styles.headerText, { flex: 1 }]}>Acciones</Text>
-        </View> */}
-
+        <LinearGradient colors={["#111026", "#332D59"]} style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon name="chevron-left" size={30} color="#0AA689" style={styles.backIcon}/>
+          </TouchableOpacity>
+          <Text style={styles.title}>Inventario</Text>
+        </View>
+        <View style={styles.searchContainer}>
+         <Icon name="magnify" size={24} color="#D0D2D9" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar productos"
+            placeholderTextColor="#D0D2D9"
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
+        </View>
         <FlatList
           data={products}
           keyExtractor={(item) => item.id.toString()}
@@ -141,10 +139,10 @@ function GetProductsScreen() {
             </View>
             <View style={styles.cardFooter}> 
              <TouchableOpacity style={styles.actionButton} onPress={()=> handleEditProduct(item)}>
-            <Icon name="pencil" size={20} color="#111026"/>
+            <Icon name="pencil" size={18} color="#111026"/>
              </TouchableOpacity>
-             <TouchableOpacity style={[styles.actionButton,   styles.deleteButton]} onPress={()=> handleDeleteProduct(item)}>
-              <Icon name="delete" size={20} color="#111026" />
+             <TouchableOpacity style={[styles.actionButton,   styles.deleteButton]} onPress={()=> handleDeleteProduct(item.id)}>
+              <Icon name="delete" size={18} color="#111026" />
              </TouchableOpacity>
             </View> 
             </View>   
@@ -185,12 +183,12 @@ function GetProductsScreen() {
               </View>
             </Dialog.Content>
             <Dialog.Actions style={styles.dialogActions}>
-              <Button onPress={() => setEditDialogVisible(false)}>Cancelar</Button>
+              <Button onPress={() => setEditDialogVisible(false)} >Cancelar</Button>
               <Button mode="contained" onPress={handleSaveEdit} style={styles.saveButton}>Guardar</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>
-      </View>
+        </LinearGradient>
     </Provider>
   );
 }
@@ -201,49 +199,38 @@ const styles = StyleSheet.create({
     backgroundColor: "#111026",
     padding: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
+  header: {
+    flexDirection: "row",
+    alignItems: "flex-end",
     marginBottom: 15,
-    color: "#0AA689",
-    fontFamily: "Roboto-Condensed",
+    marginTop: 50,
+  },
+  backIcon: {
+    color: "#F0F0F0",
+  },
+  title: {
+    fontSize: 20,
+    textAlign: "left",
+    marginLeft: 10,
+    color:"#F0F0F0",
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#44437E",
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginBottom: 15,
+  },
+  searchIcon: {
+    marginRight: 10,
   },
   searchInput: {
-    backgroundColor: "#332D59",
-    padding: 15,
-    marginBottom: 15,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#000",
+    flex: 1,
     fontSize: 16,
     color: "#fff",
   },
-  /* tableHeader: {
-    flexDirection: "row",
-    backgroundColor: "#ddd",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-  },
-  headerText: {
-    color: "#000",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  tableRow: {
-    flexDirection: "row",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    alignItems: "center",
-  },
-  cellText: {
-    fontSize: 16,
-    textAlign: "center",
-  }, */
   card: {
     backgroundColor: '#332D59',
     padding:15,
@@ -256,41 +243,51 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     borderBottonWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#666",
     paddingBottom: 8,
     marginBottom: 10,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#E0C078",
+    marginBottom: 5,
   },
-  /* PROBANDO SI QUEDAN EN EL MISMO ESPACIO EL CONTENIDO Y LOS BOTONES */
   cardContent: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
   },
   cardBody: {
     flexDirection: "column",
   },
   infoText: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#fff",
     marginTop: 15,
   },
   cardFooter:{
     flexDirection: "row",
     justifyContent: "flex-end",
+    alignItems: "center",
+    marginTop: 10,
+    gap: 15,
   },
   actionButton: {
-    backgroundColor: "#0AA689",
-    padding: 15,
-    borderRadius: 5,
-    marginHorizontal: 5,
+    backgroundColor: "#E0C078",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 3, // Sombra en Android
   },
   deleteButton: {
-    backgroundColor: "#D9534F",
-    
+    backgroundColor: "#B53935",
+  
+  },
+  icon: {
+    alignSelf: "center",
   },
   dialogEdit: {
     backgroundColor: "#D0D2D9",
@@ -303,7 +300,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontWeight: "bold",
     color: "#332D59",
-    textAling: "center",
+    textAlign: "center",
   },
   inputContainer: {
     gap:10,
@@ -312,14 +309,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#D0D2D9",
   },
   dialogActions: {
+    flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 15,
+    paddingVertical: 10,
   },
   saveButton: {
     backgroundColor: "#0AA689",
-    padding: 5,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
     borderRadius: 20,
-    
+    elevation: 3,
+  },
+  cancelButton: {
+    backgroundColor: "#D9534F",
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
 });
 
